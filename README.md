@@ -32,7 +32,7 @@ Each section has a corresponding folder with a README file that explains the goa
 
 ### 0. Introduction
 
-Getting acquainted with the basic contract for minting NFTs, _publish.sh_ and cli-ptbs.
+Getting acquainted with the basic contract for minting NFTs, _<span>publish.sh</span>_ and cli-ptbs.
 
 ### 1. Common use of kiosk for trading.
 

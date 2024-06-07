@@ -23,7 +23,6 @@ module awesome_nft::awesome_nft {
 
     fun init(otw: AWESOME_NFT, ctx: &mut TxContext) {
         package::claim_and_keep(otw, ctx);
-
         transfer::public_transfer(MintCap { id: object::new(ctx) }, ctx.sender());
     }
 
@@ -61,7 +60,6 @@ module awesome_nft::awesome_nft {
             project_url: _,
             creator: _
         } = nft;
-
-        object::delete(id);
+        id.delete();
     }
 }
