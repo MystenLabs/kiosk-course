@@ -11,8 +11,7 @@ cwd=$(pwd)
 script_dir=$(dirname "$0")
 
 MOVE_PACKAGE_PATH=${cwd}/${script_dir}/move/awesome_nft
-echo $MOVE_PACKAGE_PATH
-GAS_BUDGET=2000000000 # 2 SUI (Usually it is less than 0.5 SUI)
+GAS_BUDGET=900000000 # 0.9 SUI (Usually it is less than 0.5 SUI)
 
 network_alias=$(sui client active-env)
 envs_json=$(sui client envs --json)
