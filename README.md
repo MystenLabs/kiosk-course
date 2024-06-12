@@ -55,12 +55,12 @@ Getting acquainted with the basic contract for minting NFTs, _<span>publish.sh</
 ### 3. Enforced royalties.
 
 1. Admin edits the `TransferPolicy` to enforce royalties - lock rule.
-2. Admin airdrops NFT to seller.
-3. Seller lists NFT for sale.
-4. Buyer purchases NFT from the seller.
+2. Admin creates their own `Kiosk`
+3. Admin lists NFT in their own kiosk for sale.
+4. Buyer purchases NFT from the admin.
 5. Buyer needs to resolve the royalty and lock rules.
 
-### 4. Exclusive listing with `PurchaseCap`.
+### 4. "Almost-airdrop" with PurchaseCap.
 
 1. Admin creates their own `Kiosk`
 2. Admin lists with `PurchaseCap` an NFT for sale to buyer with 0 price.
