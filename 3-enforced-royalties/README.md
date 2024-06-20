@@ -133,7 +133,7 @@ fi
 GAS_BUDGET=100_000_000  # 0.1 SUI
 ROYALTY_BPS=1000_u16  # 10%
 
-# Switch to OWNER address
+# Switch to admin address
 sui client switch --address admin
 
 policy_type="<sui::transfer_policy::TransferPolicy<${PACKAGE_ID}::awesome_nft::AwesomeNFT>>"
@@ -264,7 +264,7 @@ fi
 
 GAS_BUDGET=5_600_000_000  # 5.6 SUI
 
-# Switch to admin address
+# Switch to buyer address
 sui client switch --address buyer
 
 nft_type="<${PACKAGE_ID}::awesome_nft::AwesomeNFT>"
@@ -279,7 +279,7 @@ sui client ptb \
     --move-call \
     0x2::kiosk::purchase \
         $nft_type \
-        @$SELLER_KIOSK_ID \
+        @$ADMIN_KIOSK_ID \
         @$NFT_ID \
         payment.0 \
     --assign purchase \

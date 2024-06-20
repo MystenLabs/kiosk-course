@@ -13,7 +13,7 @@ fi
 GAS_BUDGET=100_000_000  # 0.1 SUI
 LISTING_PRICE=5_000_000_000  # 5 SUI
 
-# Switch to seller address
+# Switch to admin address
 sui client switch --address admin
 
 nft_type="<${PACKAGE_ID}::awesome_nft::AwesomeNFT>"
