@@ -91,7 +91,7 @@ More specifically:
 - _<span>policy-with-royalties.sh</span>_, copied from the previous section, but you will need to edit it to add the lock rule (step 1).
 - _<span>purchase.sh</span>_, copied from the previous section, replacing seller with admin where applicable, but you will need to include verification of the `kiosk_lock_rule` too (step 4).
 
-#### 0. Publish
+### 0. Publish
 
 By running the _<span>publish.sh</span>_ script, you can publish the contract to your current sui environment and store the necessary information in a new `.env` file.
 Notice that in this case, this will also publish the _Kiosk_ package and store its id (same with the _awesome_nft_) in the _.rules.env_ file.

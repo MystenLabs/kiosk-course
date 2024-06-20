@@ -21,8 +21,8 @@ nft_type="<${PACKAGE_ID}::awesome_nft::AwesomeNFT>"
 sui client ptb --move-call \
     0x2::kiosk::place_and_list \
         $nft_type \
-        @$SELLER_KIOSK_ID \
-        @$SELLER_KIOSK_CAP_ID \
+        @$ADMIN_KIOSK_ID \
+        @$ADMIN_KIOSK_CAP_ID \
         @$NFT_ID \
         $LISTING_PRICE \
     --gas-budget $GAS_BUDGET \
