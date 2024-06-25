@@ -206,6 +206,10 @@ Now that we have a good understanding on how personal `Kiosk` works, let's put i
 5. Seller uses `PersonalKioskCap` to list the NFT.
 6. Buyer purchases NFT and resolves `TransferRequest`
 
+> ⚠️ In this section we need to depend on the _kiosk_ package to import `personal_kiosk` module.
+> We depend in a non-published version of the package for easier development in whichever environment we are working on.
+For depending on the published _kiosk_ rules for testnet and mainnet follow [these instructions](https://github.com/MystenLabs/apps/blob/main/kiosk/README.md).
+
 ### 1. Ensure that the `Kiosk` we airdrop to is personal
 
 We have included the contract with the airdrop functionality from the previous section.

@@ -250,6 +250,10 @@ As above we want to update our contract to include:
 2. the interface for a `Kiosk` owner to add it to their Kiosk,
 3. function to mint directly to a user's `Kiosk` in locked state, using the extension.
 
+> ⚠️  In this course, we chose to include and depend on the _kiosk_ package side by side, for easier usage in whichever environment you choose to work from.
+> As you can probably see though, we do not really need to depend on it during this step, but we do so for it to be published in the same `PACKAGE_ID`.
+For depending on the published _kiosk_ rules for testnet and mainnet follow [these instructions](https://github.com/MystenLabs/apps/blob/main/kiosk/README.md).
+
 <details>
 <summary>Solution</summary>
 

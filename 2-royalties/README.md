@@ -296,6 +296,10 @@ So, let's add the creator royalties to our `AwesomeNFT` trading!
 By running the _<span>publish.sh</span>_ script, you can publish the contract to your current sui environment and store the necessary information in a new `.env` file.
 Notice that in this case, this will also publish the _Kiosk_ package and store its id (same with the _awesome_nft_) in the _.rules.env_ file.
 
+> ⚠️  In this course, we chose to include and depend on the _kiosk_ package side by side, for easier usage in whichever environment you choose to work from.
+> As you can probably see though, we do not really need to depend on it during this step, but we do so for it to be published in the same `PACKAGE_ID`.
+For depending on the published _kiosk_ rules for testnet and mainnet follow [these instructions](https://github.com/MystenLabs/apps/blob/main/kiosk/README.md).
+
 #### 1. `TransferPolicy` with 10% royalties
 
 <details>
