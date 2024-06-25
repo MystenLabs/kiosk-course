@@ -447,7 +447,7 @@ Lastly, try to run every script in the terminal and take a look at the items cre
 
 #### 0. Publish
 
-By running the _<span>publish.sh</span>_ script, you can publish the contract to your current sui environment and store the necessary information in a new `.env` file.
+By running the _<span>publish.sh</span>_ script, you can publish the contract to your current sui environment and store the necessary information in a new _.env_ file.
 
 #### 1. Enable the trading of AwesomeNFT through the kiosk ecosystem.
 

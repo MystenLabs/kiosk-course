@@ -3,9 +3,9 @@
 Well begun is half done. We have minted and traded an `AwesomeNFT`.
 As you can see we have included all the scripts from the previous sections in this directory.
 More specifically,
-- _<span>mint.sh</span>_: Admin airdrops an NFT to seller, and stores the `NFT_ID` in the `.nft.env` file.
+- _<span>mint.sh</span>_: Admin airdrops an NFT to seller, and stores the `NFT_ID` in the _.nft.env_ file.
 - _<span>new-policy.sh</span>_: Admin creates a new policy, and stores the `TRANSFER_POLICY_ID` and `TRANSFER_POLICY_CAP_ID` in the _.transfer_policy.env_ file.
-- _<span>create-seller-kiosk.sh</span>_: Seller creates a new kiosk for the seller and stores the kiosk-id and owner-cap-id in the _.seller.kiosk.env_ file.
+- _<span>create-seller-kiosk.sh</span>_: Seller creates a new kiosk for the seller and stores the `SELLER_KIOSK_ID` and `SELLER_KIOSK_CAP_ID` in the _.seller.kiosk.env_ file.
 - _<span>place-and-list.sh</span>_: Seller places and lists the NFT for sale.
 - _<span>purchase.sh</span>_: Buyer purchases the NFT from the seller.
 - _<span>kiosk-withdraw</span>_: Seller withdraws the funds from their kiosk.
@@ -27,15 +27,15 @@ Let's revisit the `TransferPolicy` and its function:
 
 ### Rules
 
+The creator can add rules to the `TransferPolicy` that the `TransferRequest` needs to confirm in the same transaction-block.
+`confirm_request` is the function that checks the two in order to resolve the `TransferRequest`.
+
 ```
 /// - Type owner (creator) can set any Rules as long as the ecosystem supports
 /// them. All of the Rules need to be resolved within a single transaction (eg
 /// pay royalty and pay fixed commission). Once required actions are performed,
 /// the `TransferRequest` can be "confirmed" via `confirm_request` call.
 ```
-
-The creator can add rules to the `TransferPolicy` that the `TransferRequest` needs to confirm in the same transaction-block.
-`confirm_request` is the function that checks the two in order to resolve the `TransferRequest`.
 
 So it seems that `TransferPolicy` and `TransferRequest` are closely related. Let's take a look at them:
 
@@ -86,6 +86,8 @@ public struct TransferRequest<phantom T> {
 
 #### Rules & Receipts
 
+The creator adds rules to the `TransferPolicy` and that the buyer collects receipts into `TransferRequest` to verify that all rules were followed.
+
 ```rust
 /// Set of types of attached rules - used to verify `receipts` when
 /// a `TransferRequest` is received in `confirm_request` function.
@@ -100,10 +102,10 @@ rules: VecSet<TypeName>
 receipts: VecSet<TypeName>
 ```
 
-So it seems that the creator adds rules to the `TransferPolicy` and that the buyer collects receipts into `TransferRequest` to verify that all rules were followed.
-
 Let's take a look at how a rule is added to the `TransferPolicy`:
 
+The `Rule` is actually a Witness type and the `Config` is a custom configuration living under `TransferPolicy` used to verify the rule execution.
+This means that the module where the `Rule` is defined can only add rules to a `TransferPolicy` along with the `Config`, that is required to verify the rule execution.
 
 ```rust
 /// Add a custom Rule to the `TransferPolicy`. Once set, `TransferRequest` must
@@ -125,10 +127,9 @@ public fun add_rule<T, Rule: drop, Config: store + drop>(
 }
 ```
 
-So the `Rule` is actually a Witness type and the `Config` is a custom configuration living under `TransferPolicy` used to verify the rule execution.
-This means that the module where the `Rule` is defined can only add rules to a `TransferPolicy` along with the `Config`, that is required to verify the rule execution.
-
 Let's take a look at the `confirm_request` function:
+
+The `TransferPolicy` rules are iterated and a respective `receipt` inside the `TransferRequest` is checked to verify that all rules were followed.
 
 ```rust
 /// Allow a `TransferRequest` for the type `T`. The call is protected
@@ -156,9 +157,9 @@ public fun confirm_request<T>(
 }
 ```
 
-Here we see that the `TransferPolicy` rules are iterated and a respective `receipt` inside the `TransferRequest` is checked to verify that all rules were followed.
-
 Let's also see how a receipt is added to the `TransferRequest`:
+
+Pretty simple, the module that defines the `Rule` can also add a receipt to the `TransferRequest`.
 
 ```rust
 /// Adds a `Receipt` to the `TransferRequest`, unblocking the request and
@@ -170,8 +171,6 @@ public fun add_receipt<T, Rule: drop>(
 }
 ```
 
-Pretty simple, the module that defines the `Rule` can also add a receipt to the `TransferRequest`.
-
 ## Creator Royalties
 
 So, if we needed to add creator royalties, we would need to create a module with two main functions:
@@ -181,17 +180,19 @@ So, if we needed to add creator royalties, we would need to create a module with
 The rule would need to have a `Config` for calculating the correct royalties that need to be paid to the creator;
 while the `prove_rule` would use this `Config` to calculate and check the royalties thus adding the receipt to the `TransferRequest`.
 
-Luckily for us, there are some frequently used rules that are already implemented in the [Kiosk package](https://github.com/MystenLabs/apps/tree/main/kiosk).
+Luckily for us, there are some frequently used rules that are already implemented in the [kiosk package](https://github.com/MystenLabs/apps/tree/main/kiosk).
 
-> ⚠️ Do not confuse with _sui::kiosk_, the _Kiosk_ package is a separate package that is commonly used side by side with _sui::kiosk_ and defines common rules that can be used in a `TransferPolicy`.
+> ⚠️ Do not confuse with _sui::kiosk_, the _kiosk_ package is a separate package that is commonly used side by side with _sui::kiosk_ and defines common rules that can be used in a `TransferPolicy`.
 
-If you check the _move_ directory in this section you will actually find the _Kiosk_ package with the _royalty_rule.move_ file/module.
+> ⚠️  If you check the _move_ directory in this section you will actually find the _kiosk_ package with the _royalty_rule.move_ file/module.
 This package is cloned from the official [repo](https://github.com/MystenLabs/apps/tree/main/kiosk), but its _Move.toml_ file is edited to behave as unpublished.
-This way we can use it in localnet/devnet setup, as we also updated _<span>./publish.sh</span>_ (`--with-unpublished-dependencies`) and _awesome_nft/Move.toml_ to also publish the _Kiosk_ package.
-Note though, that you should only use this setup in a development/testing environment, and you should point to the correct _Kiosk_ package in a production environment.
+This way we can use it in localnet/devnet setup, as we also updated _awesome_nft/Move.toml_ and _<span>./publish.sh</span>_ (`--with-unpublished-dependencies`)  to also publish the _Kiosk_ package.
+Note though, that you should only use this setup in a development/learning environment, and you should point to the correct _kiosk_ package in a production environment by following
+[these instructions](https://github.com/MystenLabs/apps/blob/main/kiosk/README.md) or else your rules will not register with existing marketplaces!
 
 Let's take a look at the _royalty_rule.move_ module:
 
+This is exactly what we need! The rule adds creator royalties as a percentage of the purchase price or a fixed amount, selecting the higher of the two:
 ```rust
 /// Description:
 /// This module defines a Rule which requires a payment on a purchase.
@@ -220,16 +221,19 @@ Let's take a look at the _royalty_rule.move_ module:
 /// The higher of the two will be used.
 ```
 
-This is exactly what we need! The rule adds creator royalties as a percentage of the purchase price or a fixed amount, selecting the higher of the two.
-
 The `Rule witness:
+
+Pretty simple. Just a struct with a `drop` ability that we only create in this module.
+
 ```rust
 /// The "Rule" witness to authorize the policy.
 struct Rule has drop {}
 ```
-Pretty simple. Just a struct with a `drop` ability that we only create in this module.
 
 The rule configuration (`Config`):
+
+The `Config` needs the `amount_bp` and `min_amount` to calculate the correct royalties.
+
 ```rust
 /// Configuration for the Rule. The `amount_bp` is the percentage
 /// of the transfer amount to be paid as a royalty fee. The `min_amount`
@@ -244,9 +248,10 @@ struct Config has store, drop {
 }
 ```
 
-The `Config` needs the `amount_bp` and `min_amount` to calculate the correct royalties.
-
 Now the `add` function for adding the `Rule` to our `TransferPolicy`:
+
+Just a call to the `policy::add_rule` with the `Rule` and `Config`, after some basic assertion.
+
 ```rust
 /// Creator action: Add the Royalty Rule for the `T`.
 /// Pass in the `TransferPolicy`, `TransferPolicyCap` and the configuration
@@ -262,11 +267,11 @@ public fun add<T: key + store>(
 }
 ```
 
-Just a call to the `policy::add_rule` with the `Rule` and `Config`, after some basic assertion.
 
 And the function `pay` which has a two-fold purpose:
 1. Pay the royalty fee to the `TransferPolicy` and thus the creator.
 2. Add the receipt to the `TransferRequest` to confirm the rule execution.
+
 ```rust
 /// Buyer action: Pay the royalty fee for the transfer.
 public fun pay<T: key + store>(
@@ -525,5 +530,5 @@ sui client ptb \
 We have successfully added creator royalties to the trading of `AwesomeNFT`s. The creator will now receive 10% of the purchase price as royalties.
 
 However, note that the seller receives the AwesomeNFT directly in their wallet and is able to trade it without the royalties being paid to the creator. To do this they simply need to create another contract which will put the `AwesomeNFT` in a shared-object which can be unwrapped as long as a specific amount is paid to them.
-In the next sections, we will see how a creator can enforce royalties and lock the NFTs into traders' Kiosks.
+In the [next section](../3-enforced-royalties/README.md), we will see how a creator can enforce royalties and lock the NFTs into traders' Kiosks.
 
