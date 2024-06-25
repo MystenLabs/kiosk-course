@@ -10,7 +10,10 @@ In this step we will enforce the royalty rule by adding a lock rule to the `Tran
 
 ## Lock rule
 
-In the common kiosk rules in the [Kiosk](https://github.com/MystenLabs/apps/tree/main/kiosk) package (do not confuse with the `sui::kiosk` module), there exists a module called `kiosk_lock_rule`. Let's take a look at the `kiosk_lock_rule` module.
+In the common kiosk rules in the [kiosk](https://github.com/MystenLabs/apps/tree/main/kiosk) package (do not confuse with the `sui::kiosk` module), there exists a module called `kiosk_lock_rule`. Let's take a look at the `kiosk_lock_rule` module.
+
+The `kiosk_lock_rule` works by enforcing the buyer/purchaser of an item from a `Kiosk`, to also `lock()` the item in their own `Kiosk`.
+Locking the item after every `purchase()` disables the `kiosk::take()` function, so in a way, the item will always reside inside a `Kiosk`.
 
 ```rust
 /// This module defines a Rule which forces buyers to put the purchased
@@ -30,9 +33,6 @@ In the common kiosk rules in the [Kiosk](https://github.com/MystenLabs/apps/tree
 /// the owner to use `list` or `list_with_purchase_cap` methods if they
 /// wish to move the item somewhere else.
 ```
-
-So the `kiosk_lock_rule` works by enforcing the buyer/purchaser of an item from a `Kiosk`, to also `lock()` the item in their own `Kiosk`.
-Locking the item after every `purchase()` disables the `kiosk::take()` function, so in a way, the item will always reside inside a `Kiosk`.
 
 Note that this does not mean that the item/NFT is unavailable to be used in other contracts inside Sui, as there exist the following functions that are still enabled for a locked item, at least, as long as the corresponding `KioskOwnerCap` is provided.
 - `kiosk::borrow()` for immutably borrowing the item.
@@ -96,7 +96,7 @@ More specifically:
 By running the _<span>publish.sh</span>_ script, you can publish the contract to your current sui environment and store the necessary information in a new `.env` file.
 Notice that in this case, this will also publish the _Kiosk_ package and store its id (same with the _awesome_nft_) in the _.rules.env_ file.
 
-> ⚠️  In this course, we chose to include and depend on the _kiosk_ package side by side, for easier usage in whichever environment you choose to work from.
+> ⚠️  In this course, we chose to include and depend on the unpublished mirror of the _kiosk_ package side by side, for easier usage in whichever environment you choose to work from.
 > As you can probably see though, we do not really need to depend on it during this step, but we do so for it to be published in the same `PACKAGE_ID`.
 For depending on the published _kiosk_ rules for testnet and mainnet follow [these instructions](https://github.com/MystenLabs/apps/blob/main/kiosk/README.md).
 
@@ -320,4 +320,4 @@ sui client ptb \
 
 We have successfully applied `kiosk_lock_rule` to ensure that our NFT will always reside inside a `Kiosk` and will only be traded with royalties applied!
 
-In the next section, we will look into how to "almost-airdrop" items to specific owners by using `PurchaseCap` and its functions: `list_with_purchase_cap()` and `purchase_with_cap()`.
+In the [next section](../4-airdrop-with-purchase-cap/README.md), we will look into how to "**almost**-airdrop" items to specific owners by using `PurchaseCap` and its functions: `list_with_purchase_cap()` and `purchase_with_cap()`.
