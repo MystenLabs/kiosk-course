@@ -344,5 +344,5 @@ the item will be locked inside the `Kiosk` indefinitely.
 
 This of course is important to consider. The seller would need to make sure that the buyer would indeed claim the item.
 
-In the [next section](../5-airdrop) we will see how we can instead airdrop an item directly to a user's `Kiosk` using `kiosk_extension`.
+In the [next section](../5-airdrop/README.md) we will see how we can instead airdrop an item directly to a user's `Kiosk` using `kiosk_extension`.
 
