@@ -12,6 +12,27 @@ In this way one can say we simulate an airdrop, with the difference that the ite
 
 Let's take a look at the way how `list_with_purchase_cap()`, `PurchaseCap` and `purchase_with_cap()` function to enable exclusive listing.
 
+## Exclusive Listing
+
+When an item is listed exclusively, it can only be purchased by the address that holds the `PurchaseCap`.
+```rust
+/// - `listed_exclusively` - An item is listed via the `list_with_purchase_cap`
+/// function (and a `PurchaseCap` is created). While listed this way, an item
+/// can not be `delist`-ed unless a `PurchaseCap` is returned. All actions
+/// available at this item state require a `PurchaseCap`:
+///
+/// 1. `purchase_with_cap` - to purchase the item for a price equal or higher
+/// than the `min_price` set in the `PurchaseCap`.
+/// 2. `return_purchase_cap` - to return the `PurchaseCap` and return the asset
+/// into the previous state.
+///
+/// When an item is listed exclusively it cannot be modified nor taken and
+/// losing a `PurchaseCap` would lock the item in the Kiosk forever. Therefore,
+/// it is recommended to only use `PurchaseCap` functionality in trusted
+/// applications and not use it for direct trading (eg sending to another
+/// account).
+```
+
 ## List with Purchase Cap
 
 The `list_with_purchase_cap()` function is used to list an item with a minimum price and returns a `PurchaseCap`.
@@ -132,7 +153,7 @@ We will
 By running the _<span>publish.sh</span>_ script, you can publish the contract to your current sui environment and store the necessary information in a new `.env` file.
 Notice that in this case, this will also publish the _Kiosk_ package and store its id (same with the _awesome_nft_) in the _.rules.env_ file.
 
-> ⚠️  In this course, we chose to include and depend on the _kiosk_ package side by side, for easier usage in whichever environment you choose to work from.
+> ⚠️  In this course, we chose to include and depend on the unpublished mirror of the _kiosk_ package side by side, for easier usage in whichever environment you choose to work from.
 > As you can probably see though, we do not really need to depend on it during this step, but we do so for it to be published in the same `PACKAGE_ID`.
 For depending on the published _kiosk_ rules for testnet and mainnet follow [these instructions](https://github.com/MystenLabs/apps/blob/main/kiosk/README.md).
 
@@ -323,5 +344,5 @@ the item will be locked inside the `Kiosk` indefinitely.
 
 This of course is important to consider. The seller would need to make sure that the buyer would indeed claim the item.
 
-In the next section we will see how we can instead airdrop an item directly to a user's `Kiosk` using `kiosk_extension`.
+In the [next section](../5-airdrop) we will see how we can instead airdrop an item directly to a user's `Kiosk` using `kiosk_extension`.
 

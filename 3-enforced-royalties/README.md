@@ -320,4 +320,4 @@ sui client ptb \
 
 We have successfully applied `kiosk_lock_rule` to ensure that our NFT will always reside inside a `Kiosk` and will only be traded with royalties applied!
 
-In the [next section](../4-airdrop-with-purchase-cap/README.md), we will look into how to "**almost**-airdrop" items to specific owners by using `PurchaseCap` and its functions: `list_with_purchase_cap()` and `purchase_with_cap()`.
+In the [next section](../4-airdrop-with-purchasecap/README.md), we will look into how to "**almost**-airdrop" items to specific owners by using `PurchaseCap` and its functions: `list_with_purchase_cap()` and `purchase_with_cap()`.
