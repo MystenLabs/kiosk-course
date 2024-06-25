@@ -81,7 +81,7 @@ The contract also contains the following functions:
     }
     ```
 
-Pretty simple isn't it? Where is the kiosk you ask? Well, Move programming language combined with Sui's object-oriented model allows us to create modular and reusable code. The kiosk is a separate module that we will be using in the next sections which can work just fine with any struct that has the `key`, `store` abilities in the Sui blockchain.
+Pretty simple isn't it? Where is the kiosk you ask? Well, Move programming language combined with Sui's object-oriented model and transaction blocks allows us to create modular and reusable code. The kiosk is a separate module that we will be using in the next sections which can work just fine with any struct that has the `key`, `store` abilities in the Sui blockchain.
 
 ## <span>publish.sh</span>
 
@@ -97,7 +97,7 @@ After publishing the contract, the script will also store the `PACKAGE_ID`, `PUB
 _<span>mint.sh</span>_ is supposed to help us mint an NFT. Remember that only the owner of the `MintCap` can mint NFTs.
 Let's look at the _<span>mint.sh</span>_ script step by step. 
 
-First we check that the `.env` file exists and load the variables from it:
+First we check that the `.env` file, created by _<span>publish.sh</span>_ exists and load the variables from it:
 
 ```bash
 # Load variables from .env file
@@ -109,8 +109,7 @@ else
 fi
 ```
 
-Then we set a gas-budget for our programmable transaction calls:
-> ℹ️ Note that in more recent versions this step is not needed, as `sui client ptb` (below) will dry-run the transaction and set the gas-budget automatically.
+Then we define a `GAS_BUDGET` variable to use below in our programmable transaction calls:
 
 ```bash
 GAS_BUDGET=100_000_000  # 0.1 SUI
@@ -130,6 +129,8 @@ As we can see we use `--move-call <function> <args>` to call the `${PACKAGE_ID}:
 Then we assign the output of the previous function to a new variable called `nft` and transfer it to the seller using `SELLER_ADDRESS` we stores in the _.env_ above.
 
 `--gas-budget` is set to the previously defined value, and we use `--json` in order to programmatically parse the output of the ptb.
+
+> ℹ️ Note that in more recent versions of `sui` the `--gas-budget` argument is not needed, as `sui client ptb` (below) will dry-run the transaction and set the gas-budget automatically.
 
 Notice that we need to use single quotes inside double quotes to pass strings as arguments to the Move function, while object arguments need the `@$` prefix.
 
@@ -159,3 +160,7 @@ This parsing and storing will come in handy in the next sections.
 NFT_ID=$(echo "$mint_res" | jq -r '.objectChanges[] | select(.type == "created") | select(.objectType | contains("::awesome_nft::AwesomeNFT")).objectId')
 echo NFT_ID=$NFT_ID > .nft.env
 ```
+
+And that's it! Go ahead and run _<span>publish.sh</span>_ and _<span>mint.sh</span>_, in this order to publish and mint an `AwesomeNFT` to the seller address.
+
+In the [next section](../1-common-trading/README.md), we will be using kiosk to trade this NFT.
