@@ -2,11 +2,14 @@
 
 Now that we have seen how to mint an NFT, let's see how we can trade it.
 
-Taking a look at the [kiosk module](https://github.com/MystenLabs/sui/blob/main/crates/sui-framework/packages/sui-framework/sources/kiosk/kiosk.move) we are greeted with a [docstring](https://github.com/MystenLabs/sui/blob/main/crates/sui-framework/packages/sui-framework/sources/kiosk/kiosk.move#L4C1-L82C72)
+Taking a look at the [kiosk module](https://github.com/MystenLabs/sui/blob/main/crates/sui-framework/packages/sui-framework/sources/kiosk/kiosk.move)
+we are greeted with a [docstring](https://github.com/MystenLabs/sui/blob/main/crates/sui-framework/packages/sui-framework/sources/kiosk/kiosk.move#L4C1-L82C72)
 
 Let's go through the important parts step by step:
 
 ### Principles and Philosophy
+
+Even though `Kiosk` is a shared object, it is only its owner who can manage the assets in it.
 
 ```
 /// - Kiosk provides guarantees of "true ownership"; - just like single owner
@@ -15,7 +18,10 @@ Let's go through the important parts step by step:
 /// assets in the Kiosk.
 ```
 
-Kiosk even though it is a shared object, it is only its owner who can manage the assets in it.
+The default flow for trading is `list` + `purchase`, but we can implement any other trading logic on top of it using `list_with_purchase_cap` and `purchase_with_cap`.
+The later will be demonstrated in a next section.
+
+> ℹ️ Take a note of `list` + `purchase` flow, as this is the default trading logic we will be using in this section.
 
 ```
 /// - Kiosk aims to be generic - allowing for a small set of default behaviors
@@ -25,20 +31,18 @@ Kiosk even though it is a shared object, it is only its owner who can manage the
 /// `purchase_with_cap`) flow.
 ```
 
-From here we can see that the default flow for trading is `list` + `purchase`, but we can implement any other trading logic on top of it using `list_with_purchase_cap` and `purchase_with_cap`. The later will be demonstrated in a next section.
+Every time a transaction happens, and more specifically, on `purchase`, a `TransferRequest` is created.
 
-> ℹ️ Take a note of `list` + `purchase` flow, as this is the default trading logic we will be using in this section.
+> ℹ️ Note that the `TransferRequest` enables asset creators to control how their assets are traded.
 
 ```
 /// - For every transaction happening with a third party a `TransferRequest` is
 /// created - this way creators are fully in control of the trading experience.
 ```
 
-Every time a transaction happens, and more specifically, on `purchase`, a `TransferRequest` is created.
-
-> ℹ️ Note that the `TransferRequest` enables asset creators to control how their assets are traded.
-
 ### Asset states
+
+The basic state of an asset inside a Kiosk. Every asset inside a Kiosk is `placed`.
 
 ```
 /// - `placed` -  An asset is `place`d into the Kiosk and can be `take`n out by
@@ -46,7 +50,7 @@ Every time a transaction happens, and more specifically, on `purchase`, a `Trans
 /// and `borrow_val` functions.
 ```
 
-The basic state of an asset inside a Kiosk. Every asset inside a Kiosk is `placed`.
+Asset's in a `locked` state are locked inside the Kiosk. One needs to `list` or `list_with_purchase_cap` to be able to move it out of the Kiosk.
 
 ```
 /// - `locked` - Similar to `placed` except that `take` is disabled and the only
@@ -56,7 +60,7 @@ The basic state of an asset inside a Kiosk. Every asset inside a Kiosk is `place
 /// `TransferPolicy` exists to not lock the item in a `Kiosk` forever.
 ```
 
-So asset's in a `locked` state are locked inside the Kiosk. One needs to `list` or `list_with_purchase_cap` to be able to move it out of the Kiosk.
+`listed` means that the Kiosk owner has set the item as available for `purchase`. The item can not be taken or modified while it is `listed`.
 
 ```
 /// - `listed` - A `place`d or a `lock`ed item can be `list`ed for a fixed price
@@ -66,23 +70,13 @@ So asset's in a `locked` state are locked inside the Kiosk. One needs to `list` 
 /// state.
 ```
 
-This is when the Kiosk owner sets an item as available for `purchase`. The item can not be taken or modified while it is `listed`.
+We will cover `listed_exclusively` state in a later section.
 
 ```
 /// - `listed_exclusively` - ...
 ```
 
-We will cover this state in a later section.
-
 ### Using multiple Transfer Policies for different "tracks":
-
-```
-/// Every `purchase` or `purchase_with_purchase_cap` creates a `TransferRequest`
-/// hot potato which must be resolved in a matching `TransferPolicy` for the
-/// transaction to pass. While the default scenario implies that there should be
-/// a single `TransferPolicy<T>` for `T`; it is possible to have multiple, each
-/// one having its own set of rules.
-```
 
 This is a very important part of the kiosk ecosystem. We see that in order to trade an asset, a `TransferRequest` needs to be resolved using a `TransferPolicy`. This is where the creator of the asset can set (or not) rules for trading.
 
@@ -92,9 +86,19 @@ While the default scenario implies that there should be a single `TransferPolicy
 
 > ℹ️ In a way, multiple TransferPolicies function as an OR condition on resolving the `TransferRequest`.
 
+```
+/// Every `purchase` or `purchase_with_purchase_cap` creates a `TransferRequest`
+/// hot potato which must be resolved in a matching `TransferPolicy` for the
+/// transaction to pass. While the default scenario implies that there should be
+/// a single `TransferPolicy<T>` for `T`; it is possible to have multiple, each
+/// one having its own set of rules.
+```
+
 Let's go take a look into the [transfer_policy module](https://github.com/MystenLabs/sui/blob/main/crates/sui-framework/packages/sui-framework/sources/kiosk/transfer_policy.move) as it is an essential part of using Kiosks for trading.
 
 Again, we are greeted by a thorough [docstring](https://github.com/MystenLabs/sui/blob/main/crates/sui-framework/packages/sui-framework/sources/kiosk/transfer_policy.move#L4C1-L23C25)
+
+The type-owner, ie. the creator of the asset, can set custom transfer rules for every deal, ie. trade happening in the Kiosk.
 
 ```
 /// - TransferPolicy - is a highly customizable primitive, which provides an
@@ -102,7 +106,7 @@ Again, we are greeted by a thorough [docstring](https://github.com/MystenLabs/su
 /// deal performed in the `Kiosk` or a similar system that integrates with TP.
 ```
 
-The type-owner, ie. the creator of the asset, can set custom transfer rules for every deal, ie. trade happening in the Kiosk.
+We need at least one `TransferPolicy` for the asset to be tradable in a Kiosk, in order to be able to resolve the `TransferRequest` hot-potato.
 
 ```
 /// - Once a `TransferPolicy<T>` is created for and shared (or frozen), the
@@ -111,7 +115,10 @@ The type-owner, ie. the creator of the asset, can set custom transfer rules for 
 /// hot potato or transaction will fail.
 ```
 
-As above we see that we need at least one `TransferPolicy` for the asset to be tradable in a Kiosk, in order to be able to resolve the `TransferRequest` hot-potato.
+The creator can add rules to the `TransferPolicy` that the `TransferRequest` needs to confirm in the same transaction-block.
+`confirm_request` is the function that checks the two in order to resolve the `TransferRequest`.
+
+> ℹ️ Take a note on the `confirm_request` function, as this is the function we will be using to resolve the `TransferRequest`.
 
 ```
 /// - Type owner (creator) can set any Rules as long as the ecosystem supports
@@ -120,9 +127,8 @@ As above we see that we need at least one `TransferPolicy` for the asset to be t
 /// the `TransferRequest` can be "confirmed" via `confirm_request` call.
 ```
 
-The creator can add rules to the `TransferPolicy` that the `TransferRequest` needs to confirm in the same transaction-block. `confirm_request` is the function that checks the two in order to resolve the `TransferRequest`.
-
-> ℹ️ Take a note on the `confirm_request` function, as this is the function we will be using to resolve the `TransferRequest`.
+`TransferPolicy` also acts as a control-center for the creator to control trades of their assets and collect possible profits such as royalties.
+A change on the `TransferPolicy` is instantly reflected on the trading of their assets.
 
 ```
 /// - `TransferPolicy` aims to be the main interface for creators to control trades
@@ -130,8 +136,6 @@ The creator can add rules to the `TransferPolicy` that the `TransferRequest` nee
 /// policies can be removed at any moment, and the change will affect all instances
 /// of the type at once.
 ```
-
-In other words `TransferPolicy` also acts as a control-center for the creator to control trades of their assets and collect possible profits such as royalties. A change on the `TransferPolicy` is instantly reflected on the trading of their assets.
 
 ## Summary
 
@@ -677,5 +681,5 @@ sui client ptb \
 
 You have successfully traded an NFT using the kiosk ecosystem. You have learned how to create a `TransferPolicy`, a `Kiosk`, list an item for sale, purchase an item, and withdraw profits from the Kiosk.
 
-In the next section, we will explore how to pay royalties to the creator when trading via kiosk.
+In the [next section](../2-royalties/README.md), we will explore how to pay royalties to the creator when trading via kiosk.
 
