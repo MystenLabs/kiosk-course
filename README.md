@@ -81,3 +81,4 @@ Getting acquainted with the basic contract for minting NFTs, _<span>publish.sh</
 4. Admin airdrops an NFT to seller's `Kiosk`.
 5. Seller and buyer trade the NFT and resolve all rules.
 
+
